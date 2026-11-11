@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Ceklis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBF3F4;--ink:#3B1F2B;--mute:#7d6470;--rose:#C2466B;--rose-s:#F6DCE3;--sage:#5E8C6A;--sage-s:#DDEBDD;--gold:#B9852A;--card:#fff;--line:#EBD3DA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Source Sans 3',system-ui,sans-serif;font-size:17px;line-height:1.5}
+h1,h2,h3{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0}
+main{max-width:720px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 16px calc(90px + env(safe-area-inset-bottom,0px))}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:8px 0 20px}
+.hero h1{font-size:2.1rem;line-height:1.1}
+.hero p{margin:6px 0 0;color:var(--mute)}
+.streak{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:99px;background:#fff;border:1px solid var(--line);font-weight:600;color:var(--gold)}
+.ring{position:relative;width:132px;height:132px}
+.ring svg{transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:11}
+.ring .bg{stroke:var(--rose-s)}
+.ring .fg{stroke:var(--rose);stroke-linecap:round;transition:stroke-dashoffset .5s,stroke .3s}
+.ring.done .fg{stroke:var(--sage)}
+.ring .num{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.7rem;line-height:1}
+.ring .num small{font-family:'Source Sans 3',sans-serif;font-weight:400;font-size:.85rem;color:var(--mute);margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chip{padding:3px 11px;border-radius:99px;background:var(--rose-s);font-size:.9rem;font-weight:600}
+.chip.ok{background:var(--sage-s);color:#2f5a3b}
+section.g{background:var(--card);border-radius:16px;border-left:6px solid var(--rose);padding:16px 16px 8px;margin-bottom:16px}
+section.g.ok{border-left-color:var(--sage)}
+section.g header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+section.g h2{font-size:1.2rem}
+section.g header span{color:var(--mute);font-size:.9rem}
+.it{display:flex;gap:12px;align-items:center;padding:11px 2px;border-top:1px solid var(--line);cursor:pointer}
+.it:first-of-type{border-top:0}
+.it input{position:absolute;opacity:0}
+.box{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--rose);display:grid;place-content:center;color:#fff;font-size:15px;transition:background .15s}
+.it input:checked+.box{background:var(--sage);border-color:var(--sage)}
+.it input:checked~.t{text-decoration:line-through;color:var(--mute)}
+.it input:focus-visible+.box{outline:3px solid var(--rose);outline-offset:2px}
+.eval{background:var(--card);border-radius:16px;padding:18px 16px;margin:26px 0 16px}
+.eval h2{font-size:1.4rem}
+.eval>p{margin:2px 0 14px;color:var(--mute)}
+.eval label{display:block;font-weight:600;margin-top:14px}
+textarea{width:100%;min-height:64px;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fffafb;resize:vertical}
+.skor{margin-top:16px}
+.skor input{width:100%;accent-color:var(--rose)}
+.skor .lbl{display:flex;justify-content:space-between;color:var(--mute);font-size:.9rem}
+.skor b{font-family:'Bricolage Grotesque',sans-serif;font-size:1.3rem}
+.mot{background:var(--rose-s);border-radius:16px;padding:16px;margin-bottom:20px}
+.mot h3{font-size:1rem}
+.mot blockquote{margin:8px 0 6px;font-size:1.05rem;font-style:italic}
+.mot cite{color:var(--mute);font-size:.9rem}
+.bar{display:flex;gap:10px}
+.bar button{flex:1;padding:13px;border-radius:12px;border:2px solid var(--rose);font-weight:600}
+#simpan{background:var(--rose);color:#fff}
+#reset{background:#fff;color:var(--rose)}
+footer{text-align:center;color:var(--mute);margin-top:26px;font-size:.92rem}
+footer button{background:none;border:0;color:var(--rose);text-decoration:underline;padding:0}
+#toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-90px);background:var(--sage);color:#fff;padding:10px 20px;border-radius:99px;font-weight:600;transition:transform .3s;z-index:9}
+#toast.on{transform:translate(-50%,0)}
+dialog{border:0;border-radius:16px;padding:22px;max-width:360px;width:90%}
+dialog::backdrop{background:rgba(59,31,43,.5)}
+dialog input{width:100%;padding:10px;margin:12px 0;border:1px solid var(--line);border-radius:10px;font:inherit}
+dialog button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--rose);color:#fff;font-weight:600}
+#banner{display:none;margin:-6px 0 16px;padding:10px 14px;border-radius:12px;background:#fff3d6;border:1px solid #e6c777}
+#banner.on{display:flex;justify-content:space-between;gap:8px;align-items:center}
+#banner button{background:none;border:0;color:var(--rose);font-weight:600;text-decoration:underline}
+.rekap{background:var(--card);border-radius:16px;padding:16px;margin-top:22px}
+.rhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.rhead h2{font-size:1.25rem}
+.rhead button{width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--rose);font-size:1.3rem}
+.kal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.kal .nm{text-align:center;font-size:.8rem;color:var(--mute);font-weight:600}
+.kal button{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:#fffafb;font-weight:600;color:var(--ink);padding:0}
+.kal button.p1{background:var(--rose-s)}
+.kal button.p2{background:#E9A9BC}
+.kal button.p3{background:var(--sage);border-color:var(--sage);color:#fff}
+.kal button.ini{outline:2px dashed var(--rose);outline-offset:1px}
+.kal button.pilih{box-shadow:0 0 0 3px var(--ink)}
+.kal button:disabled{opacity:.35;cursor:default}
+.rstat{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.rstat div{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:.9rem;color:var(--mute)}
+.rstat b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:1.25rem;color:var(--ink)}
+.hint{color:var(--mute);font-size:.9rem;margin:10px 0 0}
+@media(max-width:460px){.hero{grid-template-columns:1fr}.ring{margin:0 auto;order:-1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="toast" role="status">Tersimpan!</div>
+<main>
+  <div class="hero">
+    <div>
+      <h1 id="sapa">Selamat Pagi</h1>
+      <p>Mahasiswa PGSD &amp; Santriwati. Aset harian untuk menjaga konsistensi ibadah, keilmuan, akademik, dan pengembangan diri. 🌸</p>
+      <span class="streak">🔥 <span id="streak">0</span> hari streak aktif</span>
+    </div>
+    <div class="ring" id="ring">
+      <svg width="132" height="132" viewBox="0 0 132 132"><circle class="bg" cx="66" cy="66" r="52"/><circle class="fg" id="fg" cx="66" cy="66" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/></svg>
+      <div class="num"><span id="n">0 / 22</span><small id="pct">0%</small></div>
+    </div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div id="banner"></div>
+  <div id="groups"></div>
+
+  <div class="eval">
+    <h2>Evaluasi Harian 🌙</h2>
+    <p>Refleksi di penghujung hari.</p>
+    <label>✍️ Yang dipelajari hari ini<textarea data-f="belajar"></textarea></label>
+    <label>📌 Doa<textarea data-f="doa"></textarea></label>
+    <label>📌 Hadis<textarea data-f="hadis"></textarea></label>
+    <label>📌 Ayat<textarea data-f="ayat"></textarea></label>
+    <label>📚 Buku yang dibaca<textarea data-f="buku"></textarea></label>
+    <label>✍️ Hal yang perlu diperbaiki<textarea data-f="perbaiki"></textarea></label>
+    <label>🎯 Target besok<textarea data-f="target"></textarea></label>
+    <div class="skor">
+      <label for="skor">⭐ Nilai produktivitas: <b id="skorv">5/10</b></label>
+      <input type="range" id="skor" min="0" max="10" value="5">
+      <div class="lbl"><span>😢 0</span><span>😐 5</span><span>🤩 10</span></div>
+    </div>
+  </div>
+
+  <div class="mot">
+    <h3 id="mot-h">Motivasi hari ini</h3>
+    <blockquote id="mot-q"></blockquote>
+    <cite>Pengingat harian</cite>
+  </div>
+
+  <div class="bar"><button id="simpan">Simpan hari ini</button><button id="reset">Reset</button></div>
+  <section class="rekap">
+    <div class="rhead"><button id="bprev" aria-label="Bulan sebelumnya">‹</button><h2 id="bulan"></h2><button id="bnext" aria-label="Bulan berikutnya">›</button></div>
+    <div class="kal" id="kal"></div>
+    <div class="rstat" id="rstat"></div>
+    <p class="hint">Ketuk tanggal untuk membuka dan mengisi hari itu. Warna makin pekat berarti makin banyak kegiatan selesai, hijau berarti tuntas semua.</p>
+  </section>
+  <footer>
+    <div>🌸 Daily Check, PGSD &amp; Santriwati</div>
+    <div id="status"></div>
+    <div>Kode data: <b id="kode-tampil"></b> <button id="ganti">ganti</button></div>
+  </footer>
+</main>
+
+<dialog id="dlg">
+  <h3>Buat kode pribadi</h3>
+  <p>Kode ini menghubungkan datamu antar perangkat. Pakai kode yang sama di HP dan laptop. Minimal 4 karakter, jangan terlalu mudah ditebak.</p>
+  <input id="kode-in" autocomplete="off" placeholder="contoh: melia-bunga-2026">
+  <button id="kode-ok">Mulai</button>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script>
+/* ====== ISI DUA BARIS INI DARI SUPABASE (Project Settings > API) ====== */
+const SUPABASE_URL = 'URL_KAMU';
+const SUPABASE_KEY = 'ANON_KEY_KAMU';
+/* ====================================================================== */
+
+const GROUPS = [
+ {id:'pagi',ikon:'🌅',judul:'Ibadah & Rutinitas Pagi',items:['Bangun tepat waktu','Salat wajib tepat waktu','Dzikir / doa pagi','Merapikan kamar & perlengkapan','Sarapan / menjaga kesehatan']},
+ {id:'hafal',ikon:'📖',judul:'Target Hafalan & Keilmuan Islam',items:['Menghafal doa harian','Menghafal 1 hadis / murojaah hadis','Menghafal ayat Al-Qur’an','Murojaah hafalan lama','Membaca tafsir / makna ayat atau hadis']},
+ {id:'akad',ikon:'📚',judul:'Akademik Mahasiswa PGSD',items:['Review materi kuliah','Mengerjakan tugas kuliah','Membaca materi/jurnal perkuliahan','Membuat catatan belajar']},
+ {id:'luang',ikon:'☕',judul:'Waktu Luang Produktif',items:['Membaca buku (minimal 10–30 menit)','Membaca buku pengembangan diri/islami/pendidikan','Menulis insight atau hal baru yang dipelajari','Mengurangi scrolling media sosial']},
+ {id:'diri',ikon:'💪',judul:'Self Development & Kesehatan',items:['Minum air yang cukup','Olahraga ringan / stretching','Istirahat cukup','Menjaga semangat & pikiran positif']}
+];
+const TOTAL = GROUPS.reduce((a,g)=>a+g.items.length,0);
+const AMBANG_STREAK = Math.ceil(TOTAL/2); // hari dihitung streak jika minimal separuh kegiatan selesai
+const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const MOTIVASI = [
+ 'Awali pekan dengan niat yang lurus. Langkah kecil yang rutin lebih awet daripada semangat yang meledak sebentar.',
+ 'Senin itu bukan beban, itu halaman kosong. Tulis satu kebaikan di dalamnya sebelum siang.',
+ 'Selesaikan yang ada di depan mata dulu. Yang besar akan kelihatan kecil kalau dicicil.',
+ 'Hafalan tanpa murojaah seperti menulis di atas air. Konsisten kecil lebih baik daripada banyak lalu berhenti.',
+ 'Capek itu wajar. Tetap hadir walau cuma sedikit, itu sudah menang melawan malas.',
+ 'Jumat adalah waktu yang baik untuk merapikan niat dan memperbanyak doa.',
+ 'Hari ini boleh pelan, asal tidak berhenti. Evaluasi, lalu siapkan pekan depan.'
+];
+
+const $ = s => document.querySelector(s);
+const db = (SUPABASE_URL.startsWith('http') && window.supabase) ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+let kode = localStorage.getItem('dc_kode') || '';
+let state = {checks:{}, eval:{}, skor:5};
+let timer;
+
+function tglLokal(d=new Date()){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const HARI_ASLI = tglLokal();
+let TGL = HARI_ASLI, kotor = false;
+let bulanLihat = new Date(); bulanLihat.setDate(1);
+const kunciLokal = t => `dc_${kode}_${t}`;
+
+function setStatus(t){$('#status').textContent=t}
+function toast(){const e=$('#toast');e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1600)}
+
+function hitung(){
+  let total=0, per={};
+  GROUPS.forEach(g=>{per[g.id]=g.items.filter((_,i)=>state.checks[g.id+'-'+i]).length;total+=per[g.id]});
+  return {total,per};
+}
+
+function render(){
+  $('#groups').innerHTML = GROUPS.map(g=>`
+    <section class="g" id="sec-${g.id}">
+      <header><h2>${g.ikon} ${g.judul}</h2><span id="c-${g.id}"></span></header>
+      ${g.items.map((t,i)=>`<label class="it"><input type="checkbox" data-k="${g.id}-${i}" ${state.checks[g.id+'-'+i]?'checked':''}><span class="box">✓</span><span class="t">${t}</span></label>`).join('')}
+    </section>`).join('');
+  document.querySelectorAll('textarea[data-f]').forEach(t=>t.value=state.eval[t.dataset.f]||'');
+  $('#skor').value=state.skor; $('#skorv').textContent=state.skor+'/10';
+  update();
+}
+
+function update(){
+  const {total,per}=hitung();
+  const p=Math.round(total/TOTAL*100);
+  $('#n').textContent=`${total} / ${TOTAL}`; $('#pct').textContent=p+'%';
+  $('#fg').style.strokeDashoffset=326.7*(1-total/TOTAL);
+  $('#ring').classList.toggle('done',total===TOTAL);
+  $('#chips').innerHTML=GROUPS.map(g=>`<span class="chip ${per[g.id]===g.items.length?'ok':''}">${g.ikon} ${per[g.id]}/${g.items.length}</span>`).join('');
+  GROUPS.forEach(g=>{
+    $('#c-'+g.id).textContent=`${per[g.id]}/${g.items.length}`;
+    $('#sec-'+g.id).classList.toggle('ok',per[g.id]===g.items.length);
+  });
+}
+
+async function simpan(tampilToast){
+  kotor=false;
+  const {total}=hitung();
+  const baris={pemilik:kode,tanggal:TGL,checks:state.checks,evaluasi:{...state.eval,skor:state.skor},jumlah_selesai:total,diperbarui:new Date().toISOString()};
+  localStorage.setItem(kunciLokal(TGL),JSON.stringify(baris)); // cadangan di perangkat
+  if(db){
+    const {error}=await db.from('daily_check').upsert(baris,{onConflict:'pemilik,tanggal'});
+    if(error){setStatus('Gagal ke Supabase, data aman di perangkat ini. '+error.message);return}
+    setStatus('Data tersimpan online di Supabase 🔒');
+  } else setStatus('Mode lokal: data tersimpan di browser ini 🔒');
+  if(tampilToast) toast();
+  hitungStreak();renderKal();
+}
+function tunda(){kotor=true;clearTimeout(timer);setStatus('Menyimpan...');timer=setTimeout(()=>simpan(false),800)}
+
+async function muat(){
+  state={checks:{},eval:{},skor:5};
+  let baris=null;
+  if(db){
+    const {data,error}=await db.from('daily_check').select('*').eq('pemilik',kode).eq('tanggal',TGL).maybeSingle();
+    if(!error) baris=data;
+  }
+  if(!baris){const l=localStorage.getItem(kunciLokal(TGL)); if(l) baris=JSON.parse(l)}
+  if(baris){
+    state.checks=baris.checks||{};
+    const {skor,...sisa}=baris.evaluasi||{};
+    state.eval=sisa; state.skor=skor??5;
+  }
+  render();
+  setStatus(db?'Data tersimpan online di Supabase 🔒':'Mode lokal: data tersimpan di browser ini 🔒');
+  hitungStreak();renderBanner();renderKal();
+}
+
+async function hitungStreak(){
+  const riwayat={};
+  if(db){
+    const {data}=await db.from('daily_check').select('tanggal,jumlah_selesai').eq('pemilik',kode).order('tanggal',{ascending:false}).limit(200);
+    (data||[]).forEach(r=>riwayat[r.tanggal]=r.jumlah_selesai);
+  }
+  for(let i=0;i<200;i++){ // tambahkan data lokal bila ada
+    const d=new Date();d.setDate(d.getDate()-i);const t=tglLokal(d);
+    const l=localStorage.getItem(kunciLokal(t)); if(l&&riwayat[t]===undefined) riwayat[t]=JSON.parse(l).jumlah_selesai;
+  }
+  let n=0; const d=new Date();
+  if((riwayat[tglLokal(d)]||0)<AMBANG_STREAK) d.setDate(d.getDate()-1); // hari ini boleh belum selesai
+  while((riwayat[tglLokal(d)]||0)>=AMBANG_STREAK){n++;d.setDate(d.getDate()-1)}
+  $('#streak').textContent=n;
+}
+
+/* ===== Rekap bulanan ===== */
+const NAMA_BULAN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const pad=n=>String(n).padStart(2,'0');
+function renderBanner(){
+  const b=$('#banner');
+  if(TGL===HARI_ASLI){b.className='';b.innerHTML='';return}
+  const [y,m,d]=TGL.split('-').map(Number);
+  b.className='on';
+  b.innerHTML=`<span>Sedang mengisi ${HARI[new Date(y,m-1,d).getDay()]}, ${pad(d)}/${pad(m)}</span><button id="kembali">Kembali ke hari ini</button>`;
+  $('#kembali').onclick=()=>pilihTanggal(HARI_ASLI);
+}
+async function dataBulan(y,m){
+  const jml=new Date(y,m+1,0).getDate(), out={};
+  if(db){
+    const {data}=await db.from('daily_check').select('tanggal,jumlah_selesai,evaluasi').eq('pemilik',kode).gte('tanggal',`${y}-${pad(m+1)}-01`).lte('tanggal',`${y}-${pad(m+1)}-${pad(jml)}`);
+    (data||[]).forEach(r=>out[r.tanggal]={j:r.jumlah_selesai,s:(r.evaluasi||{}).skor});
+  }
+  for(let d=1;d<=jml;d++){
+    const t=`${y}-${pad(m+1)}-${pad(d)}`, l=localStorage.getItem(kunciLokal(t));
+    if(l&&!out[t]){const b=JSON.parse(l);out[t]={j:b.jumlah_selesai,s:(b.evaluasi||{}).skor}}
+  }
+  return out;
+}
+async function renderKal(){
+  const y=bulanLihat.getFullYear(), m=bulanLihat.getMonth(), jml=new Date(y,m+1,0).getDate();
+  $('#bulan').textContent=NAMA_BULAN[m]+' '+y;
+  const data=await dataBulan(y,m);
+  if(y!==bulanLihat.getFullYear()||m!==bulanLihat.getMonth()) return;
+  let h=['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(x=>`<div class="nm">${x}</div>`).join('');
+  h+='<span></span>'.repeat((new Date(y,m,1).getDay()+6)%7);
+  let terisi=0,sumP=0,sumS=0,nS=0,tuntas=0;
+  for(let d=1;d<=jml;d++){
+    const t=`${y}-${pad(m+1)}-${pad(d)}`, r=data[t], j=r?r.j:0, p=j/TOTAL;
+    if(j>0){terisi++;sumP+=p;if(r.s!=null){sumS+=r.s;nS++}}
+    if(j===TOTAL) tuntas++;
+    const k=(j===0?'':j===TOTAL?'p3':p>=.5?'p2':'p1')+(t===HARI_ASLI?' ini':'')+(t===TGL?' pilih':'');
+    h+=`<button class="${k}" data-t="${t}" ${t>HARI_ASLI?'disabled':''} aria-label="${d} ${NAMA_BULAN[m]}, ${j} dari ${TOTAL} kegiatan">${d}</button>`;
+  }
+  $('#kal').innerHTML=h;
+  $('#rstat').innerHTML=`<div><b>${terisi}/${jml}</b>hari terisi</div><div><b>${terisi?Math.round(sumP/terisi*100):0}%</b>rata-rata progres</div><div><b>${tuntas}</b>hari tuntas penuh</div><div><b>${nS?(sumS/nS).toFixed(1):'-'}</b>rata-rata skor</div>`;
+}
+async function pilihTanggal(t){
+  if(kotor){clearTimeout(timer);await simpan(false)}
+  TGL=t; await muat(); window.scrollTo({top:0,behavior:'smooth'});
+}
+$('#kal').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(b&&!b.disabled)pilihTanggal(b.dataset.t)});
+$('#bprev').onclick=()=>{bulanLihat.setMonth(bulanLihat.getMonth()-1);renderKal()};
+$('#bnext').onclick=()=>{bulanLihat.setMonth(bulanLihat.getMonth()+1);renderKal()};
+
+/* ===== Interaksi ===== */
+$('#groups').addEventListener('change',e=>{
+  if(e.target.dataset.k){state.checks[e.target.dataset.k]=e.target.checked;update();tunda()}
+});
+document.querySelectorAll('textarea[data-f]').forEach(t=>t.addEventListener('input',()=>{state.eval[t.dataset.f]=t.value;tunda()}));
+$('#skor').addEventListener('input',e=>{state.skor=+e.target.value;$('#skorv').textContent=state.skor+'/10';tunda()});
+$('#simpan').onclick=()=>{clearTimeout(timer);simpan(true)};
+let resetSiap=false;
+$('#reset').onclick=()=>{
+  if(!resetSiap){
+    resetSiap=true;$('#reset').textContent='Klik lagi untuk menghapus';
+    setTimeout(()=>{resetSiap=false;$('#reset').textContent='Reset'},3000);return;
+  }
+  resetSiap=false;$('#reset').textContent='Reset';
+  state={checks:{},eval:{},skor:5};render();simpan(false);
+};
+
+/* ===== Kode pribadi ===== */
+function mulai(){
+  $('#kode-tampil').textContent=kode;
+  const h=new Date().getHours();
+  $('#sapa').textContent='Selamat '+(h<4?'Malam 🌙':h<11?'Pagi ☀️':h<15?'Siang 🌤️':h<18?'Sore 🌇':'Malam 🌙');
+  const now=new Date();
+  $('#mot-h').textContent=`Motivasi hari ${HARI[now.getDay()]}, ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}`;
+  $('#mot-q').textContent='“'+MOTIVASI[now.getDay()]+'”';
+  muat();
+}
+function mintaKode(){
+  $('#dlg').showModal();
+  $('#kode-ok').onclick=()=>{
+    const v=$('#kode-in').value.trim().toLowerCase();
+    if(v.length<4){$('#kode-in').focus();return}
+    kode=v;localStorage.setItem('dc_kode',kode);$('#dlg').close();mulai();
+  };
+}
+$('#ganti').onclick=mintaKode;
+$('#dlg').addEventListener('cancel',e=>{if(!kode)e.preventDefault()});
+kode?mulai():mintaKode();
+</script>
+</body>
+</html>
